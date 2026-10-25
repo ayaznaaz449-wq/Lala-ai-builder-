@@ -102,8 +102,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       input = '',
       enhancingPrompt,
       handleInputChange,
-
-      // promptEnhanced,
       enhancePrompt,
       sendMessage,
       handleStop,
@@ -250,7 +248,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         console.error('Error loading dynamic models for:', providerName, error);
       }
 
-      // Only update models for the specific provider
       setModelList((prevModels) => {
         const otherModels = prevModels.filter((model) => model.provider !== providerName);
         return [...otherModels, ...providerModels];
@@ -304,11 +301,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         setSelectedElement?.(null);
 
         if (recognition) {
-          recognition.abort(); // Stop current recognition
-          setTranscript(''); // Clear transcript
+          recognition.abort();
+          setTranscript('');
           setIsListening(false);
 
-          // Clear the input by triggering handleInputChange with empty value
           if (handleInputChange) {
             const syntheticEvent = {
               target: { value: '' },
@@ -386,10 +382,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             {!chatStarted && (
               <div id="intro" className="mt-[16vh] max-w-2xl mx-auto text-center px-4 lg:px-0">
                 <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
-                  Where ideas begin
+                  DAHERI AI me Khush Amdeed
                 </h1>
                 <p className="text-md lg:text-xl mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200">
-                  Bring ideas to life in seconds or get help on existing projects.
+                  DAHERI AI se koi bhi App, Website seconds me banao - Apna AI Builder
                 </p>
               </div>
             )}

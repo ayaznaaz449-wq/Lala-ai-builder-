@@ -22,6 +22,7 @@ import { Menu } from '~/components/sidebar/Menu.client';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { WorkbenchReopenButton } from '~/components/workbench/WorkbenchReopenButton';
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
+import { PricingModal } from '~/components/PricingModal';
 
 const LazyWorkbench = lazy(() =>
   import('~/components/workbench/Workbench.client').then((m) => ({ default: m.Workbench })),
@@ -146,6 +147,15 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const expoUrl = useStore(expoUrlAtom);
     const showWorkbench = useStore(workbenchStore.showWorkbench);
     const [qrModalOpen, setQrModalOpen] = useState(false);
+    const [showPricing, setShowPricing] = useState(false);
+    const [promptCount, setPromptCount] = useState(0);
+
+    useEffect(() => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('daheri_count');
+        if (saved) setPromptCount(parseInt(saved));
+      }
+    }, []);
 
     useEffect(() => {
       if (expoUrl) {
@@ -296,6 +306,18 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     };
 
     const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
+      const proKey = typeof window !== 'undefined' ? localStorage.getItem('daheri_pro') : null;
+      if (proKey !== 'DAHERI-PRO-500' && promptCount >= 30) {
+        setShowPricing(true);
+        return;
+      }
+
+      if (typeof window !== 'undefined') {
+        const newCount = promptCount + 1;
+        setPromptCount(newCount);
+        localStorage.setItem('daheri_count', String(newCount));
+      }
+
       if (sendMessage) {
         sendMessage(event, messageInput);
         setSelectedElement?.(null);
@@ -550,7 +572,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       </div>
     );
 
-    return <Tooltip.Provider delayDuration={200}>{baseChat}</Tooltip.Provider>;
+    return (
+      <Tooltip.Provider delayDuration={200}>
+        {baseChat}
+        {showPricing && <PricingModal onClose={() => setShowPricing(false)} />}
+      </Tooltip.Provider>
+    );
   },
 );
 
@@ -571,4 +598,4 @@ function ScrollToBottom() {
       </>
     )
   );
-}
+}m.Workbench

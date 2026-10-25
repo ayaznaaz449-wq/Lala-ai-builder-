@@ -84,7 +84,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute('data-color-theme', theme === 'dark' ? 'dark-dracula' : theme);
   }, [theme]);
 
-  // The theme script applies saved browser preferences before hydration.
   return (
     <html
       lang="en"
@@ -96,17 +95,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* DAHERI AI TITLE ADD KIYA */}
+        <title>DAHERI AI - Apna AI Builder</title>
+        <meta name="description" content="DAHERI AI - Apna AI Builder - Build anything with AI" />
         <Meta />
         <Links />
         <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
       </head>
       <body className="w-full h-full">
-        {/*
-          The app boots a WebContainer and reads IndexedDB/localStorage, so it is
-          genuinely client-only. `ClientOnly` renders `fallback` on the server and
-          on the first client render (keeping hydration in sync), then swaps in the
-          real tree once mounted.
-        */}
         <ClientOnly fallback={<div className="w-full h-full" />}>
           {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
         </ClientOnly>
@@ -153,7 +149,6 @@ export default function App() {
   const theme = useStore(themeStore);
 
   useEffect(() => {
-    // Mark app launch start
     journeys.appLaunch.start();
     journeys.appLaunch.reactHydrated();
 
@@ -164,19 +159,11 @@ export default function App() {
       timestamp: new Date().toISOString(),
     });
 
-    // Start Web Vitals observation
     observeWebVitals();
-
-    // Pre-boot WebContainer in background
     prebootWebContainer();
 
-    // Initialize debug logging with improved error handling
     import('./utils/debugLogger')
       .then(({ debugLogger }) => {
-        /*
-         * The debug logger initializes itself and starts disabled by default
-         * It will only start capturing when enableDebugMode() is called
-         */
         const status = debugLogger.getStatus();
         logStore.logSystem('Debug logging ready', {
           initialized: status.initialized,
@@ -188,7 +175,6 @@ export default function App() {
         logStore.logError('Failed to initialize debug logging', error);
       });
 
-    // Mark app as interactive
     journeys.appLaunch.interactive({
       theme,
       performance: {
@@ -197,12 +183,5 @@ export default function App() {
     });
   }, []);
 
-  /*
-   * React Router applies the root route's `Layout` export itself, wrapping this
-   * component. Rendering `<Layout>` here as well would nest a second
-   * `<html>/<head>/<body>` inside the first, which React reports as invalid DOM
-   * nesting and duplicate-element mounts. Remix v2 required the explicit wrap;
-   * React Router 8 does not.
-   */
   return <Outlet />;
 }
